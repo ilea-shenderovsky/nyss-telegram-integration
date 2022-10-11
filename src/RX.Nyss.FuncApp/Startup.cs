@@ -61,6 +61,7 @@ public static class FunctionHostBuilderExtensions
         builder.Services.AddScoped<IEmailAttachmentService, EmailAttachmentService>();
         builder.Services.AddScoped<IDeadLetterSmsService, DeadLetterSmsService>();
 
+//        builder.Services.AddScoped<IReportPublisherService, ReportPublisherService>();
         builder.Services.AddScoped(typeof(IReportPublisherService),
             newConfiguration["AZURE_FUNCTIONS_ENVIRONMENT"] == "Development"
                 ? typeof(DirectReportPublisherService)

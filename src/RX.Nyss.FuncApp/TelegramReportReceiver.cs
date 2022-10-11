@@ -39,14 +39,22 @@ public class TelegramReportReceiver
         _nyssContext = nyssContext;
     }
 
+    private const string SetupFunctionName = "setup";
     private const string EnqueueTelegramReportFunctionName = "enqueueTelegramReport";
 
-    [FunctionName("EnqueueTelegramReport")]
-    public async Task EnqueueTelegramReport(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "setupTelegram")] HttpRequestMessage httpRequest)
+    [FunctionName(SetupFunctionName)]
+    public async Task<IActionResult> Setup(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "setup")] HttpRequestMessage httpRequest)
     {
         await _telegramBotClient.SetWebhookAsync("https://909f-77-88-106-66.ngrok.io/api/enqueueTelegramReport");
+        return new NoContentResult();
     }
+
+//    [FunctionName(SetupFunctionName)]
+//    public async Task RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestMessage req)
+//    {
+//        await _telegramBotClient.SetWebhookAsync("http://localhost:7070/api/enqueueTelegramReport");
+//    }
 
 
     [FunctionName(EnqueueTelegramReportFunctionName)]
