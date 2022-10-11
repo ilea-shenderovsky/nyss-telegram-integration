@@ -8,10 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RX.Nyss.FuncApp.Configuration;
 using RX.Nyss.Common.Utils.DataContract;
 using RX.Nyss.FuncApp.Contracts;
 using RX.Nyss.FuncApp.Services;
+using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace RX.Nyss.FuncApp;
 
@@ -19,13 +22,28 @@ public class TelegramReportReceiver
 {
     private readonly ILogger<TelegramReportReceiver> _logger;
     private readonly IConfig _config;
+    private readonly ITelegramBotClient _telegramBotClient;
     private readonly IReportPublisherService _reportPublisherService;
 
-    public TelegramReportReceiver(ILogger<TelegramReportReceiver> logger, IConfig config, IReportPublisherService reportPublisherService)
+    public TelegramReportReceiver(ILogger<TelegramReportReceiver> logger, IConfig config, ITelegramBotClient telegramBotClient, IReportPublisherService reportPublisherService)
     {
+        _logger = logger;
+        _config = config;
+        _telegramBotClient = telegramBotClient;
+        _reportPublisherService = reportPublisherService;
     }
 
+    private const string EnqueueTelegramReportFunctionName = "enqueueTelegramReport";
+
     [FunctionName("EnqueueTelegramReport")]
+    public async Task EnqueueTelegramReport(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "setupTelegram")] HttpRequestMessage httpRequest)
+    {
+        await _telegramBotClient.SetWebhookAsync("https://909f-77-88-106-66.ngrok.io/api/enqueueTelegramReport");
+    }
+
+
+    [FunctionName(EnqueueTelegramReportFunctionName)]
     public async Task<IActionResult> EnqueueTelegramReport(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "enqueueTelegramReport")] HttpRequestMessage httpRequest,
         [Blob("%AuthorizedApiKeysBlobPath%", FileAccess.Read)] string authorizedApiKeys)
@@ -47,11 +65,13 @@ public class TelegramReportReceiver
             return new BadRequestResult();
         }
 
-        var decodedHttpRequestContent = HttpUtility.UrlDecode(httpRequestContent);
+        var model = JsonConvert.DeserializeObject<Update>(httpRequestContent);
+
+        var simpleModel = new SimpleModel($"{model.Message?.From?.Username}", model.Message?.Text);
 
         var report = new Report
         {
-            Content = httpRequestContent,
+            Content = JsonConvert.SerializeObject(simpleModel),
             ReportSource = ReportSource.Telegram
         };
 
@@ -60,3 +80,5 @@ public class TelegramReportReceiver
         return new OkResult();
     }
 }
+
+record SimpleModel(string Sender, string Message);
