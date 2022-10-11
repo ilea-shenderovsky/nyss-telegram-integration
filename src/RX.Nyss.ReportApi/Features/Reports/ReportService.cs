@@ -17,13 +17,15 @@ namespace RX.Nyss.ReportApi.Features.Reports
     {
         private readonly ISmsEagleHandler _smsEagleHandler;
         private readonly INyssReportHandler _nyssReportHandler;
+        private readonly ITelegramHandler _telegramReportHandler;
         private readonly ILoggerAdapter _loggerAdapter;
 
-        public ReportService(ISmsEagleHandler smsEagleHandler, ILoggerAdapter loggerAdapter, INyssReportHandler nyssReportHandler)
+        public ReportService(ISmsEagleHandler smsEagleHandler, ILoggerAdapter loggerAdapter, INyssReportHandler nyssReportHandler, ITelegramHandler telegramReportHandler)
         {
             _smsEagleHandler = smsEagleHandler;
             _loggerAdapter = loggerAdapter;
             _nyssReportHandler = nyssReportHandler;
+            _telegramReportHandler = telegramReportHandler;
         }
 
         public async Task<bool> ReceiveReport(Report report)
@@ -43,6 +45,9 @@ namespace RX.Nyss.ReportApi.Features.Reports
                     break;
                 case ReportSource.Nyss:
                     await _nyssReportHandler.Handle(report.Content);
+                    break;
+                case ReportSource.Telegram:
+                    await _telegramReportHandler.Handle(report.Content);
                     break;
                 default:
                     _loggerAdapter.Error($"Could not find a proper handler to handle a report '{report}'.");
