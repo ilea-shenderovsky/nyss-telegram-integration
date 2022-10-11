@@ -21,6 +21,7 @@
     <ProjectReference Include="..\RX.Nyss.Common\RX.Nyss.Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\RX.Nyss.Data\RX.Nyss.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Telegram.Bot" />

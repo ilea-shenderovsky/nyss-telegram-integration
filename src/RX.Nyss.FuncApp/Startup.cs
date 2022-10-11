@@ -1,9 +1,11 @@
 using System.IO;
 using System.Reflection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RX.Nyss.Data;
 using RX.Nyss.FuncApp;
 using RX.Nyss.FuncApp.Configuration;
 using RX.Nyss.FuncApp.Services;
@@ -52,6 +54,7 @@ public static class FunctionHostBuilderExtensions
         builder.Services.AddScoped<IEmailAttachmentService, EmailAttachmentService>();
         builder.Services.AddScoped<IDeadLetterSmsService, DeadLetterSmsService>();
         builder.Services.AddScoped<IReportPublisherService, ReportPublisherService>();
+        builder.Services.AddDbContext<NyssContext>(options => options.UseSqlServer(nyssFuncAppConfig.ConnectionStrings.NyssDatabase, x => x.UseNetTopologySuite()));
 
         //https://docs.microsoft.com/en-us/azure/azure-functions/functions-app-settings#azure_functions_environment
         builder.Services.AddScoped(typeof(IEmailClient), newConfiguration["AZURE_FUNCTIONS_ENVIRONMENT"] == "Development"

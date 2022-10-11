@@ -38,6 +38,7 @@
         public class ConnectionStringsOptions
         {
             public string IotHubService { get; set; }
+            public string NyssDatabase { get; set; }
         }
     }
 }

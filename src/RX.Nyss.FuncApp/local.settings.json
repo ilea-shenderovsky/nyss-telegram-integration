@@ -30,6 +30,7 @@
     }
   },
   "ConnectionStrings": {
+    "NyssDatabase": "Server=(localdb)\\mssqllocaldb;Database=Rx.Nyss.Db;Trusted_Connection=True;",
     "IotHubService": "",
     "ServiceBus": ""
   },
