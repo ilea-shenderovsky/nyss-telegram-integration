@@ -17,6 +17,8 @@ namespace RX.Nyss.Data.Models
 
         public string PhoneNumber { get; set; }
 
+        public string TelegramId { get; set; }
+
         public string AdditionalPhoneNumber { get; set; }
 
         public Sex? Sex { get; set; }
