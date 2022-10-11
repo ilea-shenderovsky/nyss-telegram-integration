@@ -29,7 +29,7 @@ namespace RX.Nyss.ReportApi.Features.Reports.Handlers
         Task<DataCollector> ValidateDataCollector(string phoneNumber, int gatewayNationalSocietyId);
     }
 
-    public class TelegramHandler : ISmsEagleHandler
+    public class TelegramHandler : ITelegramHandler
     {
         private const string SenderParameterName = "sender";
 
@@ -176,11 +176,11 @@ namespace RX.Nyss.ReportApi.Features.Reports.Handlers
             await SendNotifications(sender, modemNumber, alertData, errorReportData, projectHealthRisk, gatewaySetting);
         }
 
-        public async Task<DataCollector> ValidateDataCollector(string phoneNumber, int gatewayNationalSocietyId)
+        public async Task<DataCollector> ValidateDataCollector(string telegramId, int gatewayNationalSocietyId)
         {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
+            if (string.IsNullOrWhiteSpace(telegramId))
             {
-                throw new ReportValidationException("A phone number cannot be empty.");
+                throw new ReportValidationException("A telegram ID cannot be empty.");
             }
 
             var dataCollector = await _nyssContext.DataCollectors
@@ -192,13 +192,12 @@ namespace RX.Nyss.ReportApi.Features.Reports.Handlers
                 .ThenInclude(dcl => dcl.Village)
                 .Include(dc => dc.DataCollectorLocations)
                 .ThenInclude(dcl => dcl.Zone)
-                .SingleOrDefaultAsync(dc => dc.PhoneNumber == phoneNumber ||
-                    (dc.AdditionalPhoneNumber != null && dc.AdditionalPhoneNumber == phoneNumber));
+                .SingleOrDefaultAsync(dc => dc.TelegramId == telegramId);
 
             if (dataCollector != null && dataCollector.Project.NationalSocietyId != gatewayNationalSocietyId)
             {
                 throw new ReportValidationException($"A Data Collector's National Society identifier ('{dataCollector.Project.NationalSocietyId}') " +
-                    $"is different from SMS Gateway's ('{gatewayNationalSocietyId}').");
+                    $"is different from telegram Gateway's ('{gatewayNationalSocietyId}').");
             }
 
             return dataCollector;

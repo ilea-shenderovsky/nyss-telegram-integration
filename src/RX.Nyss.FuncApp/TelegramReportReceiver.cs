@@ -34,16 +34,16 @@ public class TelegramReportReceiver
         var contentLength = httpRequest.Content.Headers.ContentLength;
         if (contentLength == null || contentLength > maxContentLength)
         {
-            _logger.Log(LogLevel.Warning, $"Received an SMS Eagle request with length more than {maxContentLength} bytes. (length: {contentLength.ToString() ?? "N/A"})");
+            _logger.Log(LogLevel.Warning, $"Received a telegram request with length more than {maxContentLength} bytes. (length: {contentLength.ToString() ?? "N/A"})");
             return new BadRequestResult();
         }
 
         var httpRequestContent = await httpRequest.Content.ReadAsStringAsync();
-        _logger.Log(LogLevel.Debug, $"Received SMS Eagle report: {httpRequestContent}.{Environment.NewLine}HTTP request: {httpRequest}");
+        _logger.Log(LogLevel.Debug, $"Received telegram report: {httpRequestContent}.{Environment.NewLine}HTTP request: {httpRequest}");
 
         if (string.IsNullOrWhiteSpace(httpRequestContent))
         {
-            _logger.Log(LogLevel.Warning, "Received an empty SMS Eagle report.");
+            _logger.Log(LogLevel.Warning, "Received an empty telegram report.");
             return new BadRequestResult();
         }
 
@@ -60,4 +60,3 @@ public class TelegramReportReceiver
         return new OkResult();
     }
 }
-
